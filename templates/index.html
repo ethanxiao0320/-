@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高考错题管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.secondary {
+            background: #6c757d;
+            margin-bottom: 10px;
+            width: 48%;
+            display: inline-block;
+            margin-right: 2%;
+        }
+
+        .stats-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .stat-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .question-list {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .question-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            border-left: 3px solid #667eea;
+        }
+
+        .question-item-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .question-item-meta {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .similar-questions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .similar-questions h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .badge-subject {
+            background: #cfe9fc;
+            color: #0c63e4;
+        }
+
+        .badge-difficulty {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            button.secondary {
+                width: 100%;
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 高考错题管理系统</h1>
+            <p>智能收集错题，科学生成试卷，助力高考冲刺</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- 学生创建卡片 -->
+            <div class="card">
+                <h2>👤 创建/登录</h2>
+                <div class="message" id="createMsg"></div>
+                <div class="form-group">
+                    <label for="studentName">学生名字</label>
+                    <input type="text" id="studentName" placeholder="输入你的名字">
+                </div>
+                <button onclick="createStudent()">创建/登录</button>
+                <div id="currentStudent" style="margin-top: 15px; text-align: center; color: #667eea; font-weight: 600;"></div>
+            </div>
+
+            <!-- 上传错题卡片 -->
+            <div class="card">
+                <h2>✏️ 上传错题</h2>
+                <div class="message" id="uploadMsg"></div>
+
+                <div class="form-group">
+                    <label for="subject">科目 *</label>
+                    <select id="subject">
+                        <option value="">-- 选择科目 --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="difficulty">难度 *</label>
+                    <select id="difficulty">
+                        <option value="">-- 选择难度 --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="questionType">题型</label>
+                    <select id="questionType">
+                        <option value="选择题">选择题</option>
+                        <option value="填空题">填空题</option>
+                        <option value="解答题">解答题</option>
+                        <option value="大题">大题</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="knowledgePoint">知识点 *</label>
+                    <input type="text" id="knowledgePoint" placeholder="例如：求导法则、函数单调性">
+                </div>
+
+                <div class="form-group">
+                    <label for="questionContent">题目内容 *</label>
+                    <textarea id="questionContent" placeholder="粘贴完整的题目内容"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="correctAnswer">正确答案 *</label>
+                    <textarea id="correctAnswer" placeholder="输入标准答案"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="explanation">解题思路（可选）</label>
+                    <textarea id="explanation" placeholder="输入解题思路和关键步骤"></textarea>
+                </div>
+
+                <button onclick="addQuestion()">保存错题</button>
+            </div>
+
+            <!-- 生成试卷卡片 -->
+            <div class="card">
+                <h2>📋 生成试卷</h2>
+                <div class="message" id="examMsg"></div>
+
+                <div class="form-group">
+                    <label for="examType">试卷类型</label>
+                    <select id="examType">
+                        <option value="normal">标准试卷（综合难度）</option>
+                        <option value="focused">重点突破（针对薄弱点）</option>
+                        <option value="mixed">混合试卷（分层试题）</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="examQuestionCount">题目数量</label>
+                    <input type="number" id="examQuestionCount" value="10" min="1" max="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="examSubject">科目（留空则包含所有）</label>
+                    <select id="examSubject">
+                        <option value="">-- 所有科目 --</option>
+                    </select>
+                </div>
+
+                <button onclick="generateExam()">生成试卷</button>
+            </div>
+
+            <!-- 学习统计卡片 -->
+            <div class="card">
+                <h2>📊 学习统计</h2>
+                <div class="message" id="statsMsg"></div>
+
+                <button onclick="refreshStats()" style="margin-bottom: 15px;">刷新统计</button>
+
+                <div id="statsDisplay"></div>
+
+                <div style="margin-top: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 10px;">薄弱知识点 Top 5</h3>
+                    <div id="weakKnowledge"></div>
+                </div>
+            </div>
+
+            <!-- 错题列表卡片 -->
+            <div class="card">
+                <h2>📝 错题列表</h2>
+                <button onclick="loadQuestions()" style="margin-bottom: 15px;">刷新错题</button>
+                <div id="questionsList" class="question-list"></div>
+            </div>
+
+            <!-- 相似题目推荐卡片 -->
+            <div class="card">
+                <h2>🎯 相似题目推荐</h2>
+                <div class="message" id="similarMsg"></div>
+                
+                <div class="form-group">
+                    <label for="wrongQuestionId">选择错题</label>
+                    <select id="wrongQuestionId">
+                        <option value="">-- 选择错题 --</option>
+                    </select>
+                </div>
+
+                <button onclick="getSimilarQuestions()">获取相似题</button>
+
+                <div id="similarQuestionsList" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStudentId = localStorage.getItem('studentId');
+
+        // ==================== 初始化 ====================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSubjects();
+            if (currentStudentId) {
+                document.getElementById('currentStudent').textContent = `✓ 已登录 (ID: ${currentStudentId})`;
+                loadQuestions();
+            }
+        });
+
+        // ==================== 学生管理 ====================
+
+        function createStudent() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                showMessage('createMsg', '请输入学生名字', 'error');
+                return;
+            }
+
+            fetch('/api/student/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentStudentId = data.student.id;
+                    localStorage.setItem('studentId', currentStudentId);
+                    showMessage('createMsg', `✓ 欢迎，${name}！`, 'success');
+                    document.getElementById('currentStudent').textContent = `✓ 已登录: ${name}`;
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showMessage('createMsg', data.error || '创建失败', 'error');
+                }
+            })
+            .catch(e => showMessage('createMsg', '网络错误', 'error'));
+        }
+
+        // ==================== 科目加载 ====================
+
+        function loadSubjects() {
+            fetch('/api/subjects')
+            .then(r => r.json())
+            .then(data => {
+                const subjects = data.subjects;
+                const difficulties = data.difficulties;
+
+                ['subject', 'examSubject'].forEach(id => {
+                    const sel = document.getElementById(id);
+                    subjects.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s;
+                        opt.textContent = s;
+                        sel.appendChild(opt);
+                    });
+                });
+
+                const diffSel = document.getElementById('difficulty');
+                difficulties.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    diffSel.appendChild(opt);
+                });
+            });
+        }
+
+        // ==================== 错题管理 ====================
+
+        function addQuestion() {
+            if (!currentStudentId) {
+                showMessage('uploadMsg', '请先创建学生', 'error');
+                return;
+            }
+
+            const data = {
+                student_id: currentStudentId,
+                subject: document.getElementById('subject').value,
+                difficulty: document.getElementById('difficulty').value,
+                question_type: document.getElementById('questionType').value,
+                knowledge_point: document.getElementById('knowledgePoint').value,
+                question_content: document.getElementById('questionContent').value,
+                correct_answer: document.getElementById('correctAnswer').value,
+                explanation: document.getElementById('explanation').value
+            };
+
+            if (!data.subject || !data.difficulty || !data.knowledge_point || !data.question_content || !data.correct_answer) {
+                showMessage('uploadMsg', '请填写所有必需字段', 'error');
+                return;
+            }
+
+            fetch('/api/question/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('uploadMsg', '✓ 错题已保存', 'success');
+                    document.getElementById('questionContent').value = '';
+                    document.getElementById('correctAnswer').value = '';
+                    document.getElementById('explanation').value = '';
+                    document.getElementById('knowledgePoint').value = '';
+                    loadQuestions();
+                } else {
+                    showMessage('uploadMsg', data.error || '保存失败', 'error');
+                }
+            })
+            .catch(e => showMessage('uploadMsg', '网络错误', 'error'));
+        }
+
+        function loadQuestions() {
+            if (!currentStudentId) return;
+
+            fetch(`/api/questions/${currentStudentId}`)
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById('questionsList');
+                const selector = document.getElementById('wrongQuestionId');
+                
+                if (data.questions.length === 0) {
+                    list.innerHTML = '<p style="color: #999; text-align: center;">还没有错题呢</p>';
+                    return;
+                }
+
+                list.innerHTML = data.questions.map(q => `
+                    <div class="question-item">
+                        <div class="question-item-title">${q.subject} - ${q.question_type}</div>
+                        <div class="question-item-meta">
+                            难度: ${q.difficulty} | 知识点: ${q.knowledge_point} | 复习: ${q.times_reviewed}次
+                        </div>
+                    </div>
+                `).join('');
+
+                // 更新下拉菜单
+                selector.innerHTML = '<option value="">-- 选择错题 --</option>';
+                data.questions.forEach(q => {
+                    const opt = document.createElement('option');
+                    opt.value = q.id;
+                    opt.textContent = `${q.subject} - ${q.knowledge_point} (复习${q.times_reviewed}次)`;
+                    selector.appendChild(opt);
+                });
+            });
+        }
+
+        // ==================== 试卷生成 ====================
+
+        function generateExam() {
+            if (!currentStudentId) {
+                showMessage('examMsg', '请先创建学生', 'error');
+                return;
+            }
+
+            const data = {
+                student_id: currentStudentId,
+                type: document.getElementById('examType').value,
+                question_count: parseInt(document.getElementById('examQuestionCount').value),
+                subject: document.getElementById('examSubject').value || null,
+                name: `试卷-${new Date().toLocaleString()}`
+            };
+
+            fetch('/api/exam/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('examMsg', `✓ 生成成功！${data.exam.total_questions}题，满分${data.exam.total_score}`, 'success');
+                    alert(`试卷已生成！\n题目数: ${data.exam.total_questions}\n满分: ${data.exam.total_score}`);
+                } else {
+                    showMessage('examMsg', data.error || '生成失败', 'error');
+                }
+            })
+            .catch(e => showMessage('examMsg', '网络错误: ' + e, 'error'));
+        }
+
+        // ==================== 相似题目推荐 ====================
+
+        function getSimilarQuestions() {
+            const questionId = document.getElementById('wrongQuestionId').value;
+            if (!questionId) {
+                showMessage('similarMsg', '请选择错题', 'error');
+                return;
+            }
+
+            fetch(`/api/similar-questions/${questionId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const html = `
+                        <div class="similar-questions">
+                            <h4>找到 ${data.similar_questions.length} 道相似题目</h4>
+                            ${data.similar_questions.map((q, i) => `
+                                <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 3px;">
+                                    <strong>${i+1}. ${q.knowledge_point}</strong>
+                                    <p style="margin: 5px 0; color: #666; font-size: 0.9em;">${q.content.substring(0, 100)}...</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    document.getElementById('similarQuestionsList').innerHTML = html;
+                    showMessage('similarMsg', '✓ 相似题目已加载', 'success');
+                } else {
+                    showMessage('similarMsg', data.error || '获取失败', 'error');
+                }
+            })
+            .catch(e => showMessage('similarMsg', '网络错误', 'error'));
+        }
+
+        // ==================== 统计 ====================
+
+        function refreshStats() {
+            if (!currentStudentId) {
+                showMessage('statsMsg', '请先创建学生', 'error');
+                return;
+            }
+
+            fetch(`/api/stats/${currentStudentId}`)
+            .then(r => r.json())
+            .then(stats => {
+                const html = `
+                    <div class="stats-display">
+                        <div class="stat-item">
+                            <span class="stat-label">总错题数</span>
+                            <span class="stat-value">${stats.total_wrong_questions}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">总复习次数</span>
+                            <span class="stat-value">${stats.total_reviews}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">已掌握题目</span>
+                            <span class="stat-value">${stats.mastered_questions}</span>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('statsDisplay').innerHTML = html;
+
+                if (stats.weak_knowledge_points) {
+                    const weakHtml = Object.entries(stats.weak_knowledge_points)
+                        .slice(0, 5)
+                        .map(([kp, count]) => `<div style="padding: 5px 0;">• ${kp}: ${count} 题</div>`)
+                        .join('');
+                    document.getElementById('weakKnowledge').innerHTML = weakHtml || '<p style="color: #999;">无数据</p>';
+                }
+                showMessage('statsMsg', '✓ 统计已更新', 'success');
+            })
+            .catch(e => showMessage('statsMsg', '获取失败', 'error'));
+        }
+
+        // ==================== 工具函数 ====================
+
+        function showMessage(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = text;
+            el.className = 'message ' + type;
+            setTimeout(() => { el.className = 'message'; }, 3000);
+        }
+    </script>
+</body>
+</html>
