@@ -14,7 +14,15 @@ import json
 
 # 初始化 Flask 应用
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///exam_system.db'
+
+# 配置数据库 - 支持Heroku
+if os.environ.get('DATABASE_URL'):
+    # Heroku环境
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
+else:
+    # 本地开发
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///exam_system.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSON_AS_ASCII'] = False
 
@@ -268,4 +276,6 @@ def server_error(e):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    # 支持Heroku环境
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, port=port, host='0.0.0.0')
