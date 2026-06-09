@@ -30,6 +30,49 @@ class Student(db.Model):
         }
 
 
+class Question(db.Model):
+    """题库中的标准题目"""
+    __tablename__ = 'questions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # 基本信息
+    subject = db.Column(db.String(20), nullable=False, index=True)
+    difficulty = db.Column(db.String(10), nullable=False, index=True)
+    question_type = db.Column(db.String(20), nullable=False)
+    
+    # 题目内容
+    content = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    explanation = db.Column(db.Text, nullable=True)
+    knowledge_point = db.Column(db.String(100), nullable=False, index=True)
+    
+    # 来源信息
+    source = db.Column(db.String(50), default='自定义')  # 学科网、自定义等
+    external_id = db.Column(db.String(100), unique=True, nullable=True)
+    
+    # 时间戳
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 使用统计
+    usage_count = db.Column(db.Integer, default=0)  # 被使用次数
+    last_used = db.Column(db.DateTime, nullable=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'subject': self.subject,
+            'difficulty': self.difficulty,
+            'question_type': self.question_type,
+            'content': self.content,
+            'answer': self.answer,
+            'explanation': self.explanation,
+            'knowledge_point': self.knowledge_point,
+            'source': self.source
+        }
+
+
 class WrongQuestion(db.Model):
     """错题模型"""
     __tablename__ = 'wrong_questions'
@@ -55,6 +98,9 @@ class WrongQuestion(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     times_reviewed = db.Column(db.Integer, default=0)  # 复习次数
     last_reviewed = db.Column(db.DateTime, nullable=True)  # 最后复习时间
+    
+    # 相似题目推荐
+    similar_questions_shown = db.Column(db.Boolean, default=False)
     
     def to_dict(self):
         return {
